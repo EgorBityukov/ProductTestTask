@@ -57,7 +57,7 @@ GO
 
 CREATE TABLE EventLog (
     ID UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
-    EventDate DATETIME NOT NULL DEFAULT GETDATE(),
+    EventDate DATETIME NOT NULL DEFAULT GETUTCDATE(),
     Description NVARCHAR(MAX) NULL
 );
 GO
@@ -137,20 +137,27 @@ RETURNS TABLE
 AS
 RETURN
 (
-    SELECT
-        pv.ID AS ProductVersionID,
-        p.Name AS ProductName,
-        pv.Name AS ProductVersionName,
-        pv.Width,
-        pv.Height,
-        pv.Length
+    SELECT 
+	   p.[ID]			AS ID
+      ,p.[Name]			AS ProductName
+      ,p.[Description]	AS ProductDescription
+	  ,pv.[ID]			AS ProductVersionID
+      ,pv.[ProductID]	AS ProductID
+      ,pv.[Name]		AS ProductVersionName
+      ,pv.[Description] AS ProductVersionDescription
+      ,pv.[CreatingDate]
+      ,pv.[Width]
+      ,pv.[Height]
+      ,pv.[Length]
     FROM Product p
     JOIN ProductVersion pv ON p.ID = pv.ProductID
     WHERE p.Name LIKE '%' + @ProductName + '%'
       AND pv.Name LIKE '%' + @ProductVersionName + '%'
-      AND (pv.Width * pv.Height * pv.Length) BETWEEN @MinVolume AND @MaxVolume
+      AND (@MinVolume IS NULL OR @MinVolume>=(pv.Width * pv.Height * pv.Length)) 
+	  AND (@MaxVolume IS NULL OR @MaxVolume<=(pv.Width * pv.Height * pv.Length))
 );
 GO
+
 
 
 INSERT INTO Product (ID, Name, Description)
