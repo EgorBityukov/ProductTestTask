@@ -1,0 +1,42 @@
+﻿@model IEnumerable<ProductWithVersionsDto>
+
+<form method="get" asp-action="Index">
+    <input type="text" name="filter" value="@ViewData["Filter"]" placeholder="Filter by name" />
+    <input type="submit" value="Search" />
+</form>
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Versions</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model)
+        {
+            <tr>
+                <td>@product.Name</td>
+                <td>@product.Description</td>
+                <td>
+                    <ul>
+                        @foreach (var version in product.Versions)
+                        {
+                            <li>@version.Name</li>
+                        }
+                    </ul>
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@product.ID">Edit</a>
+                    <form asp-action="Delete" asp-route-id="@product.ID" method="post">
+                        <input type="submit" value="Delete" />
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Create">Create New Product</a>
