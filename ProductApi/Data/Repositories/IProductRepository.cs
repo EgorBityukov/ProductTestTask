@@ -4,7 +4,7 @@ namespace ProductApi.Data.Repository
 {
     public interface IProductRepository
     {
-        Task<IEnumerable<Product>> GetProductsByNameAsync(string name);
+        Task<IEnumerable<ProductVersionsDAO>> GetProductsAsync(string? name = "", string? versionName = "", double? minVolume = null, double? maxVolume = null);
         Task<Product> GetByIdAsync(Guid id);
         Task AddAsync(Product product);
         Task UpdateAsync(Product product);

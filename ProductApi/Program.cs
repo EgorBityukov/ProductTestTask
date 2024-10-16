@@ -3,19 +3,19 @@ using Microsoft.EntityFrameworkCore;
 using ProductApi.Middleware;
 using ProductApi.Data.Repository;
 using ProductApi.Services;
-using ProductApi.MappingProfiles;
 using FluentValidation.AspNetCore;
 using ProductApi.Validators;
 using FluentValidation;
 using ProductApi.Models.Requests;
 using Microsoft.AspNetCore.Mvc;
 using ProductApi.Models.Response;
+using ProductApi.MappingProfiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ProductionDbContext>(options =>
-        options.UseSqlServer(connectionString));
+        options.UseSqlServer(connectionString)));
 
 builder.Services.AddAutoMapper(typeof(ProductProfile));
 

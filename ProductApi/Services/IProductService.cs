@@ -4,7 +4,7 @@ namespace ProductApi.Services
 {
     public interface IProductService
     {
-        Task<List<ProductDTO>> GetAllAsync(string name);
+        Task<List<ProductDTO>> GetAllAsync(string? name = "", string? versionName = "", double? minVolume = null, double? maxVolume = null);
         Task<ProductDTO> GetByIdAsync(Guid id);
         Task<ProductVersionDTO> GetVersionByIdAsync(Guid id);
         Task AddAsync(ProductDTO productDto);

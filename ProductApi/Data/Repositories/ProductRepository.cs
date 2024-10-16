@@ -12,22 +12,10 @@ namespace ProductApi.Data.Repository
             _context = context;
         }
 
-        public async Task<IEnumerable<Product>> GetProductsByNameAsync(string name)
+        public async Task<IEnumerable<ProductVersionsDAO>> GetProductsAsync(string? name = "", string? versionName = "", double? minVolume = null, double? maxVolume = null)
         {
-            var query = _context.Products
-                .Include(p => p.ProductVersions)
-                .AsQueryable();
-
-            if (!string.IsNullOrEmpty(name))
-            {
-                query = query.Where(p => p.Name.ToLower().Contains(name.ToLower()));
-            }
-
-            var products = await query
-                .AsNoTracking()
-                .ToListAsync();
-
-            return products;
+            var productVersions = await _context.GetProductVersions(name, versionName, minVolume, maxVolume).AsNoTracking().ToListAsync();
+            return productVersions;
         }
 
         public async Task<Product> GetByIdAsync(Guid id)
