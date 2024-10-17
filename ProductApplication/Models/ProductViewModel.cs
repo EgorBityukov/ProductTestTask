@@ -1,6 +1,8 @@
-﻿namespace ProductApplication.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace ProductApplication.Models
 {
-    public class Product
+    public class ProductViewModel
     {
         public Guid ID { get; set; }
         public string? Name { get; set; }

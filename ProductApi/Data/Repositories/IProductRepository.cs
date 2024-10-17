@@ -6,6 +6,7 @@ namespace ProductApi.Data.Repository
     {
         Task<IEnumerable<ProductVersionsDAO>> GetProductsAsync(string? name = "", string? versionName = "", double? minVolume = null, double? maxVolume = null);
         Task<Product> GetByIdAsync(Guid id);
+        Task<bool> isExistAsync(string name);
         Task AddAsync(Product product);
         Task UpdateAsync(Product product);
         Task DeleteAsync(Product product);

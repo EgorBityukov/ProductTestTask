@@ -28,6 +28,11 @@ namespace ProductApi.Data.Repository
 #pragma warning restore CS8603 // Possible null reference return.
         }
 
+        public async Task<bool> isExistAsync(string name)
+        {
+            return await _context.Products.AnyAsync(p => p.Name == name);
+        }
+
         public async Task<ProductVersion> GetVersionByIdAsync(Guid id)
         {
 #pragma warning disable CS8603 // Possible null reference return.
@@ -40,7 +45,14 @@ namespace ProductApi.Data.Repository
         public async Task AddAsync(Product product)
         {
             await _context.Products.AddAsync(product);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+
+            }
         }
 
         public async Task UpdateAsync(Product product)

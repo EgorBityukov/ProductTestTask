@@ -4,43 +4,101 @@ namespace ProductApplication.Services
 {
     public class ProductService : IProductService
     {
-        private readonly HttpClient _httpClient;
+        private readonly ApiClient _apiClient;
 
-        public ProductService(HttpClient httpClient)
+        public ProductService(ApiClient apiClient)
         {
-            _httpClient = httpClient;
+            _apiClient = apiClient;
         }
 
-        public async Task<IEnumerable<Product>> GetProductsAsync(string filter = "")
+        public async Task<List<Product>?> GetProductsAsync(string filter = "")
         {
-            var response = await _httpClient.GetAsync($"api/products?name={filter}");
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsAsync<IEnumerable<Product>>();
+            var response = await _apiClient.GetAsync($"api/products?name={filter}");
+            var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<List<Product>>>();
+
+            if (apiResponse == null)
+            {
+                return null;
+            }
+            else
+            if (!apiResponse.IsSuccess)
+            {
+                throw new Exception(apiResponse.ErrorMessage);
+            }
+
+            return apiResponse.Data;
         }
 
-        public async Task<Product> GetProductAsync(Guid id)
+        public async Task<Product?> GetProductAsync(Guid id)
         {
-            var response = await _httpClient.GetAsync($"api/products/{id}");
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsAsync<Product>();
+            var response = await _apiClient.GetAsync($"api/products/{id}");
+            var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<Product>>();
+
+            if (apiResponse == null)
+            {
+                return null;
+            }
+            else
+            if (!apiResponse.IsSuccess)
+            {
+                throw new Exception(apiResponse.ErrorMessage);
+            }
+
+            return apiResponse.Data;
         }
 
-        public async Task CreateProductAsync(Product product)
+        public async Task<string?> CreateProductAsync(Product product)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/products", product);
-            response.EnsureSuccessStatusCode();
+            var response = await _apiClient.PostAsync("api/products/AddProduct", product);
+            var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<string>>();
+
+            if (apiResponse == null)
+            {
+                return null;
+            }
+            else
+            if (!apiResponse.IsSuccess)
+            {
+                throw new Exception(apiResponse.ErrorMessage);
+            }
+
+            return apiResponse.Data;
         }
 
-        public async Task UpdateProductAsync(Guid id, Product product)
+        public async Task<string?> UpdateProductAsync(Guid id, Product product)
         {
-            var response = await _httpClient.PutAsJsonAsync($"api/products/{id}", product);
-            response.EnsureSuccessStatusCode();
+            var response = await _apiClient.PutAsync($"api/products/UpdateProduct/{id}", product);
+            var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<string>>();
+
+            if (apiResponse == null)
+            {
+                return null;
+            }
+            else
+            if (!apiResponse.IsSuccess)
+            {
+                throw new Exception(apiResponse.ErrorMessage);
+            }
+
+            return apiResponse.Data;
         }
 
-        public async Task DeleteProductAsync(Guid id)
+        public async Task<string?> DeleteProductAsync(Guid id)
         {
-            var response = await _httpClient.DeleteAsync($"api/products/{id}");
-            response.EnsureSuccessStatusCode();
+            var response = await _apiClient.DeleteAsync($"api/products/DeleteProduct/{id}");
+            var apiResponse = await response.Content.ReadFromJsonAsync<ApiResponse<string>>();
+
+            if (apiResponse == null)
+            {
+                return null;
+            }
+            else
+            if (!apiResponse.IsSuccess)
+            {
+                throw new Exception(apiResponse.ErrorMessage);
+            }
+
+            return apiResponse.Data;
         }
     }
 }

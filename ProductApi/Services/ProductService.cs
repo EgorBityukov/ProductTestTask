@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using ProductApi.Data.Models;
 using ProductApi.Data.Repository;
 using ProductApi.Models.DTO;
@@ -27,19 +28,18 @@ namespace ProductApi.Services
                     ID = g.Key.ID,
                     Name = g.Key.ProductName,
                     Description = g.Key.ProductDescription,
-                    ProductVersions = g.Select(pv => new ProductVersionDTO
+                    ProductVersions = g.Where(pv => pv.ProductVersionID != null).Select(pv => new ProductVersionDTO
                     {
-                        ID = pv.ProductVersionID,
+                        ID = pv.ProductVersionID.Value,
                         Name = pv.ProductVersionName,
                         Description = pv.ProductVersionDescription,
                         CreatingDate = pv.CreatingDate,
-                        ProductID = pv.ProductID,
-                        Height = pv.Height,
-                        Width = pv.Width,
-                        Length = pv.Length
-                    }).ToList()
-                })
-                .ToList();
+                        ProductID = pv.ProductID.Value,
+                        Height = pv.Height.Value,
+                        Width = pv.Width.Value,
+                        Length = pv.Length.Value
+                    }).OrderBy(pv => pv.Name).ToList()
+                }).OrderBy(p => p.Name).ToList();
 
             return products;
         }
@@ -48,6 +48,11 @@ namespace ProductApi.Services
         {
             var product = await _productRepository.GetByIdAsync(id);
             return _mapper.Map<ProductDTO>(product);
+        }
+
+        public async Task<bool> isExistAsync(ProductDTO productDto)
+        {
+            return await _productRepository.isExistAsync(productDto.Name);
         }
 
         public async Task AddAsync(ProductDTO productDto)

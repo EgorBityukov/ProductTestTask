@@ -6,6 +6,7 @@ namespace ProductApi.Services
     {
         Task<List<ProductDTO>> GetAllAsync(string? name = "", string? versionName = "", double? minVolume = null, double? maxVolume = null);
         Task<ProductDTO> GetByIdAsync(Guid id);
+        Task<bool> isExistAsync(ProductDTO productDto);
         Task<ProductVersionDTO> GetVersionByIdAsync(Guid id);
         Task AddAsync(ProductDTO productDto);
         Task UpdateAsync(ProductDTO productDto);

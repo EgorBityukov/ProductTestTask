@@ -1,14 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using ProductApplication.Models;
 using ProductApplication.Services;
+using System.Diagnostics;
 
 public class ProductsController : Controller
 {
     private readonly IProductService _productService;
+    private readonly IMapper _mapper;
 
-    public ProductsController(IProductService productService)
+    public ProductsController(IProductService productService, IMapper mapper)
     {
         _productService = productService;
+        _mapper = mapper;
     }
 
     public async Task<IActionResult> Index(string filter = "")
@@ -17,57 +21,45 @@ public class ProductsController : Controller
         return View(products);
     }
 
-    public async Task<IActionResult> Create()
+    public IActionResult Create()
     {
-        return View();
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Create(Product product)
-    {
-        if (ModelState.IsValid)
-        {
-            await _productService.CreateProductAsync(product);
-            return RedirectToAction("Index");
-        }
-        return View(product);
+        var model = new ProductViewModel();
+        return PartialView("_ProductForm", model);
     }
 
     public async Task<IActionResult> Edit(Guid id)
     {
         var product = await _productService.GetProductAsync(id);
-        if (product == null)
-        {
-            return NotFound();
-        }
-        return View(product);
+        var model = _mapper.Map<ProductViewModel>(product);
+        return PartialView("_ProductForm", model);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Edit(Guid id, Product product)
+    public async Task<IActionResult> Save(ProductViewModel model)
     {
-        if (ModelState.IsValid)
+        var product = _mapper.Map<Product>(model);
+
+        try
         {
-            await _productService.UpdateProductAsync(id, product);
-            return RedirectToAction("Index");
+            if (product.ID != Guid.Empty)
+            {
+                await _productService.UpdateProductAsync(product.ID, product);
+            }
+            else
+            {
+                await _productService.CreateProductAsync(product);
+            }
         }
-        return View(product);
+        catch (Exception ex)
+        {
+            return Json(new { isSuccess = false, errorMessage = ex.Message });
+        }
+
+        return Json(new { isSuccess = true });
     }
 
-    public async Task<IActionResult> Delete(Guid id)
+    public IActionResult Error()
     {
-        var product = await _productService.GetProductAsync(id);
-        if (product == null)
-        {
-            return NotFound();
-        }
-        return View(product);
-    }
-
-    [HttpPost, ActionName("Delete")]
-    public async Task<IActionResult> DeleteConfirmed(Guid id)
-    {
-        await _productService.DeleteProductAsync(id);
-        return RedirectToAction("Index");
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 }

@@ -1,42 +1,126 @@
-﻿@model IEnumerable<ProductWithVersionsDto>
+﻿@model IEnumerable<Product>
 
 <form method="get" asp-action="Index">
     <input type="text" name="filter" value="@ViewData["Filter"]" placeholder="Filter by name" />
     <input type="submit" value="Search" />
 </form>
 
-<table>
-    <thead>
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
         <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Versions</th>
-            <th>Actions</th>
+            <th scope="col">Name</th>
+            <th scope="col">Description</th>
+            <th scope="col">Version</th>
+            <th scope="col">Version Description</th>
+            <th scope="col">Width</th>
+            <th scope="col">Height</th>
+            <th scope="col">Length</th>
+            <th scope="col">Actions</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var product in Model)
         {
-            <tr>
-                <td>@product.Name</td>
-                <td>@product.Description</td>
-                <td>
-                    <ul>
-                        @foreach (var version in product.Versions)
-                        {
-                            <li>@version.Name</li>
-                        }
-                    </ul>
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@product.ID">Edit</a>
-                    <form asp-action="Delete" asp-route-id="@product.ID" method="post">
-                        <input type="submit" value="Delete" />
-                    </form>
-                </td>
-            </tr>
+            @if (product.ProductVersions != null && product.ProductVersions.Count > 0)
+            {
+                @foreach (var version in product?.ProductVersions)
+                {
+                    <tr>
+                        <td>@product.Name</td>
+                        <td>@product.Description</td>
+                        <td>@version.Name</td>
+                        <td>@version.Description</td>
+                        <td>@version.Width</td>
+                        <td>@version.Height</td>
+                        <td>@version.Length</td>
+                        <td>
+                            <button type="button" class="editProduct btn btn-primary" data-id="@product.ID" data-bs-toggle="modal" data-bs-target="#productModal">
+                                Edit
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td>@product.Name</td>
+                    <td>@product.Description</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        <button type="button" class="editProduct btn btn-primary" data-id="@product.ID" data-bs-toggle="modal" data-bs-target="#productModal">
+                            Edit
+                        </button>
+                    </td>
+                </tr>
+            }
         }
     </tbody>
 </table>
 
-<a asp-action="Create">Create New Product</a>
+<button type="button" class="btn btn-primary" id="createProduct" data-bs-toggle="modal" data-bs-target="#productModal">
+    Create
+</button>
+
+
+<div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Создать изделие</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="error-message" class="alert alert-danger d-none"></div>
+                <form id="productForm">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" id="saveProduct">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#createProduct').on('click', function () {
+            $('#modalTitle').text('Create product');
+            if (!$('#error-message').hasClass('d-none')) $('#error-message').addClass('d-none');
+            $.get('/Products/Create', function (formHtml) {
+                $('#productForm').html(formHtml);
+                $('#productModal').modal('show');
+            });
+        });
+
+        $('.editProduct').on('click', function () {
+            var productId = $(this).data('id');
+            $('#modalTitle').text('Edit Product');
+            if (!$('#error-message').hasClass('d-none')) $('#error-message').addClass('d-none');
+            $.get('/Products/Edit?id=' + productId, function (formHtml) {
+                $('#productForm').html(formHtml);
+                $('#productModal').modal('show');
+            });
+        });
+
+        $('#saveProduct').on('click', function () {
+            var formData = $('#productForm').serialize();
+            console.log(formData);
+            $.post('/Products/Save', formData, function (response) {
+                if (response.isSuccess) {
+                    $('#productModal').modal('hide');
+                    location.reload();
+                } else {
+                    $('#error-message').text(response.errorMessage);
+                    $('#error-message').removeClass('d-none');
+                }
+            });
+        });
+    });
+</script>

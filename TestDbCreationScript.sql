@@ -150,9 +150,9 @@ RETURN
       ,pv.[Height]
       ,pv.[Length]
     FROM Product p
-    JOIN ProductVersion pv ON p.ID = pv.ProductID
-    WHERE p.Name LIKE '%' + @ProductName + '%'
-      AND pv.Name LIKE '%' + @ProductVersionName + '%'
+    LEFT JOIN ProductVersion pv ON p.ID = pv.ProductID
+    WHERE (@ProductName = '' OR p.Name LIKE '%' + @ProductName + '%')
+      AND (@ProductVersionName = '' OR pv.Name LIKE '%' + @ProductVersionName + '%')
       AND (@MinVolume IS NULL OR @MinVolume>=(pv.Width * pv.Height * pv.Length)) 
 	  AND (@MaxVolume IS NULL OR @MaxVolume<=(pv.Width * pv.Height * pv.Length))
 );

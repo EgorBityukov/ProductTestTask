@@ -1,0 +1,39 @@
+﻿@model ProductViewModel
+
+<div class="form-group">
+    <label for="productName">Product Name</label>
+    <input type="text" class="form-control" id="productName" name="Name" value="@Model.Name" required />
+</div>
+<div class="form-group">
+    <label for="productDescription">Product Description</label>
+    <textarea class="form-control" id="productDescription" name="Description">@Model.Description</textarea>
+</div>
+@* @if (@Model.ProductVersions != null && @Model.ProductVersions.Count > 0)
+{
+    @foreach (var version in @Model.ProductVersions)
+    {
+        <div class="form-group">
+            <label for="productVersionName">Version</label>
+            <input type="text" class="form-control" id="productVersionName" name="Name" value="@version.Name" required />
+        </div>
+        <div class="form-group">
+            <label for="productVersionDescription">Version Description</label>
+            <textarea class="form-control" id="productVersionDescription" name="Description">@version.Description</textarea>
+        </div>
+        <div class="form-group">
+            <label for="Width">Width</label>
+            <input type="number" step="0.01" class="form-control" id="Width" name="Width" value="@version.Width">
+        </div>
+        <div class="form-group">
+            <label for="Length">Length</label>
+            <input type="number" step="0.01" class="form-control" id="Length" name="Length" value="@version.Length">
+        </div>
+        <div class="form-group">
+            <label for="Height">Height</label>
+            <input type="number" step="0.01" class="form-control" id="Height" name="Height" value="@version.Height">
+        </div>
+    }
+} *@
+
+
+<input type="hidden" name="ID" value="@Model.ID" />

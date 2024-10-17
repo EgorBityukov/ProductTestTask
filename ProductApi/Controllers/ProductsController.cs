@@ -21,7 +21,7 @@ namespace ProductApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProducts([FromQuery] string name = "")
+        public async Task<ActionResult<ApiResponse<List<ProductDTO>>>> GetProducts([FromQuery] string name = "")
         {
             var products = await _productService.GetAllAsync(name);
             return Ok(ApiResponse<List<ProductDTO>>.Success(products));
@@ -40,15 +40,21 @@ namespace ProductApi.Controllers
             return Ok(ApiResponse<ProductDTO>.Success(product));
         }
 
-        [HttpPost]
-        public async Task<ActionResult<ProductDTO>> AddProduct([FromBody] ProductCreateRequest createRequest)
+        [HttpPost("AddProduct")]
+        public async Task<ActionResult<string>> AddProduct([FromBody] ProductCreateRequest createRequest)
         {
             var product = _mapper.Map<ProductDTO>(createRequest);
+
+            if (await _productService.isExistAsync(product))
+            {
+                return BadRequest(ApiResponse<string>.Fail("Product already exist."));
+            }
+
             await _productService.AddAsync(product);
-            return CreatedAtAction(nameof(GetProduct), new { id = product.ID }, ApiResponse<ProductDTO>.Success(product));
+            return Ok(ApiResponse<string>.Success("Product created successfully."));
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("UpdateProduct/{id}")]
         public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductUpdateRequest updatedProduct)
         {
             if (id != updatedProduct.ID)
@@ -68,7 +74,7 @@ namespace ProductApi.Controllers
             return Ok(ApiResponse<string>.Success("Product updated successfully."));
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteProduct/{id}")]
         public async Task<IActionResult> DeleteProduct(Guid id)
         {
             var product = await _productService.GetByIdAsync(id);
@@ -83,11 +89,11 @@ namespace ProductApi.Controllers
         }
 
         [HttpPost("AddProductVersion")]
-        public async Task<ActionResult<ProductVersionDTO>> AddProductVersion([FromBody] ProductVersionCreateRequest createRequest)
+        public async Task<ActionResult<string>> AddProductVersion([FromBody] ProductVersionCreateRequest createRequest)
         {
             var productVersion = _mapper.Map<ProductVersionDTO>(createRequest);
             await _productService.AddAsync(productVersion);
-            return CreatedAtAction(nameof(GetProduct), new { id = productVersion.ID }, ApiResponse<ProductVersionDTO>.Success(productVersion));
+            return Ok(ApiResponse<string>.Success("Product Version created successfully."));
         }
 
         [HttpPut("UpdateProductVersion/{id}")]
